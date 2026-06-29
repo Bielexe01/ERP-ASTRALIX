@@ -15,8 +15,9 @@ if (shouldIgnoreLocalhostEnv) {
   console.warn('VITE_API_URL aponta para localhost em producao. Defina a URL publica da API no Vercel.')
 }
 
+const resolvedBaseURL = (envBaseURL || fallbackBaseURL).replace(/\/+$/g, '') + '/'
 const api = axios.create({
-  baseURL: envBaseURL || fallbackBaseURL
+  baseURL: resolvedBaseURL
 })
 
 api.interceptors.request.use(cfg => {
