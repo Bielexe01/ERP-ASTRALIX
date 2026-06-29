@@ -33,7 +33,10 @@ export default function Login() {
       localStorage.setItem('pdv_remember', rememberMe ? '1' : '0')
       navigate('/')
     } catch (err) {
-      const serverMessage = err?.response?.data?.error || err?.message
+      const rawMessage = err?.response?.data?.error || err?.message
+      const serverMessage = typeof rawMessage === 'string'
+        ? rawMessage
+        : rawMessage?.message || JSON.stringify(rawMessage)
       setError(serverMessage || 'Usuario ou senha invalidos')
       console.error('Login failed:', err)
     } finally {

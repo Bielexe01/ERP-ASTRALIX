@@ -1,11 +1,12 @@
 import axios from 'axios'
 
 const rawEnvBaseURL = String(import.meta.env.VITE_API_URL || '').trim()
-const isLocalhostUrl = /localhost|127\.0\.0\.1/i.test(rawEnvBaseURL)
+const normalizedEnvBaseURL = rawEnvBaseURL.replace(/\/+$/g, '')
+const isLocalhostUrl = /localhost|127\.0\.0\.1/i.test(normalizedEnvBaseURL)
 const isDesktopFileProtocol = typeof window !== 'undefined' && window.location.protocol === 'file:'
 const defaultDesktopApiURL = 'http://localhost:5000/api'
 const shouldIgnoreLocalhostEnv = import.meta.env.PROD && isLocalhostUrl && !isDesktopFileProtocol
-const envBaseURL = shouldIgnoreLocalhostEnv ? '' : rawEnvBaseURL
+const envBaseURL = shouldIgnoreLocalhostEnv ? '' : normalizedEnvBaseURL
 const fallbackBaseURL = import.meta.env.DEV
   ? defaultDesktopApiURL
   : (isDesktopFileProtocol ? defaultDesktopApiURL : '/api')
@@ -19,6 +20,9 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(cfg => {
+  if (cfg.url && !/^https?:\/\//i.test(cfg.url)) {
+    cfg.url = String(cfg.url).replace(/^\/+/, '')
+  }
   const t = localStorage.getItem('pdv_token')
   if (t) cfg.headers.Authorization = `Bearer ${t}`
   return cfg
