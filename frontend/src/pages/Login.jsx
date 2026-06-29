@@ -33,7 +33,9 @@ export default function Login() {
       localStorage.setItem('pdv_remember', rememberMe ? '1' : '0')
       navigate('/')
     } catch (err) {
-      setError('Usuario ou senha invalidos')
+      const serverMessage = err?.response?.data?.error || err?.message
+      setError(serverMessage || 'Usuario ou senha invalidos')
+      console.error('Login failed:', err)
     } finally {
       setLoading(false)
     }
